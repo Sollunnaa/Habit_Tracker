@@ -30,6 +30,17 @@ export const getHabits = async (req: Request, res: Response) => {
   }
 };
 
+export const getDoneHabits = async (req: Request, res: Response) => {
+  try{
+    const doneHabits = await db.select().from(habit).where(and(eq(habit.isDone, true), eq(habit.isDeleted, false)));
+    res.status(200).json(doneHabits);
+  }
+  catch (error){
+    console.error(error);
+    res.status(500).json({error: "Failed to fetch done habits"});
+  }
+};
+
 export const getHabitById = async (req: Request, res: Response) => {
   try{
     const {id} = req.params;
