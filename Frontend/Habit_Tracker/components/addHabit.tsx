@@ -63,7 +63,9 @@ const styles = StyleSheet.create (
     justifyContent: "center",
     height: height * 0.1,
     marginTop: height * 0.01,
-    width: width,
+    width: width *0.7,
+    marginRight: width * 0.075,
+    marginLeft: width* 0.05
   },
    linearGradient: {
     flex: 1,
@@ -76,7 +78,7 @@ const styles = StyleSheet.create (
     borderRadius: 15,
     alignItems: "center",
     justifyContent: "center",
-    width: width * 0.9,
+    width: width * 0.8,
     flexDirection: "row",
     height: height * 0.05,
   },

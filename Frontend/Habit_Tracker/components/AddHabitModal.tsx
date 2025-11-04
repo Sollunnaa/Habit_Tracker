@@ -25,7 +25,7 @@ export default function AddHabitModal({
   ]);
   const [open, setOpen] = useState(false);
 
-   const [habitName, setHabitName] = useState("");
+  const [habitName, setHabitName] = useState("");
   const [time, setTime] = useState<string>('');
   const [show, setShow] = useState(false);
 
