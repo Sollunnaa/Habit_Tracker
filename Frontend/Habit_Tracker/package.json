@@ -12,6 +12,7 @@
     "@react-native-community/datetimepicker": "^8.4.4",
     "dayjs": "^1.11.18",
     "expo": "^54.0.21",
+    "expo-checkbox": "~5.0.7",
     "expo-linear-gradient": "~15.0.7",
     "expo-status-bar": "~3.0.8",
     "react": "^19.1.0",

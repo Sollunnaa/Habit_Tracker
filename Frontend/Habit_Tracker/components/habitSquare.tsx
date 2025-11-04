@@ -1,6 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native'
 import dayjs from 'dayjs';
+import EditHabitModal from './editHabitModal';
+import {Checkbox} from 'expo-checkbox'
 
 const { width } = Dimensions.get('window');
 
@@ -16,27 +18,60 @@ export type Habit={
 
 type HabitSquareProp = {
     habit: Habit;
+    onEdit: (habit: Habit) => void;
+    onToggleDone: (id: number, isDone: boolean) => void;
+    onSoftDel: (id: number, isDelete: boolean) => void;
+    showDeleted: boolean;
+    onRestore:(id: number, isDelete: boolean) => void;
 }
 
-export default function HabitSquare({habit}: HabitSquareProp ) {
+
+
+export default function HabitSquare({habit, onEdit, onToggleDone, onSoftDel, showDeleted, onRestore}: HabitSquareProp ) {
+    const [isChecked ,setChecked] = useState(false);
+    const [isDel, setDel] = useState(false);
+
+    const handleToggle = (newValue : boolean) => {
+        setChecked(newValue);
+        onToggleDone(habit.id, newValue);
+
+    }
+
+
+   
+
     return (
         <View style={styles.container}>
             {/* Row 1 - Title + Edit/Delete */}
             <View style={styles.row1}>
                 <View style={styles.left}>
-                    <View style={styles.checkbox} />
-                    <Text style={styles.title}>{habit.habitName}</Text>
+                    <Checkbox style={styles.checkbox} 
+                    value={isChecked} 
+                    onValueChange={handleToggle} 
+                    color={isChecked?'#ff4d79' : undefined}/>
+                    <Text style={[styles.title, habit.isDone && {textDecorationLine: "line-through", color: "#888"}]}>{habit.habitName}</Text>
                 </View>
 
                 <View style={styles.right}>
-                    <TouchableOpacity>
-                        <Text style={styles.editText}>Edit</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity>
-                        <Text style={styles.deleteText}>X</Text>
-                    </TouchableOpacity>
+                    {!showDeleted ? (
+                        <>
+                        <TouchableOpacity onPress={()=> onEdit(habit)} >
+                            <Text style={styles.editText}>Edit</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={()=> onSoftDel(habit.id,true)}>
+                            <Text style={styles.deleteText}>X</Text>
+                        </TouchableOpacity>
+                        </>
+                        
+                    ): (
+                        <TouchableOpacity onPress={()=> onRestore(habit.id, false)}>
+                            <Text style={styles.deleteText}>Restore</Text>
+                        </TouchableOpacity>
+                    )}
                 </View>
             </View>
+           
 
             {/* Row 2 - Icons for Daily and Time */}
             <View style={styles.row2}>
@@ -116,7 +151,8 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 16,
-        fontWeight: '600'
+        fontWeight: '600',
+        
     },
     smallText: {
         fontSize: 12,

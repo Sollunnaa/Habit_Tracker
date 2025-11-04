@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import db from '../db'
 import {habit} from '../db/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and ,asc} from 'drizzle-orm';
 
 export const createHabit = async (req: Request, res: Response) => {
   try{
@@ -21,7 +21,7 @@ export const createHabit = async (req: Request, res: Response) => {
 
 export const getHabits = async (req: Request, res: Response) => {
   try{
-    const habits = await db.select().from(habit).where(eq(habit.isDeleted, false));
+    const habits = (await db.select().from(habit).orderBy(asc(habit.time)).where(eq(habit.isDeleted, false)));
     res.status(200).json(habits);
   }
   catch (error){
@@ -75,6 +75,38 @@ export const editHabit = async (req: Request, res: Response) => {
   }
 };
 
+export const isDoneHabit = async(req: Request, res: Response) => {
+  try{
+    const {id} = req.params;
+    const {isDone} = req.body
+    const doneHabit = await db.update(habit).set({isDone})
+    .where(and(eq(habit.id, Number(id)), eq(habit.isDeleted, false))).returning();
+    if(doneHabit.length===0){
+      return res.status(404).json({error: "Habit not found or could not be done"});
+    }
+    res.status(200).json({message: "Habit Change to is Done"})
+  }catch(error){
+    console.error(error);
+    res.status(500).json({error: "Failed to edit habit"});
+  }
+}
+
+export const revertIsDone = async(req: Request, res: Response) => {
+  try{
+    const {id} = req.params;
+    const doneHabit = await db.update(habit).set({
+      isDone: false 
+    }).where(and(eq(habit.id, Number(id)), eq(habit.isDeleted, false))).returning();
+    if(doneHabit.length===0){
+      return res.status(404).json({error: "Habit not found or could not be done"});
+    }
+    res.status(200).json({message: "Habit Change to is Done"})
+  }catch(error){
+    console.error(error);
+    res.status(500).json({error: "Failed to edit habit"});
+  }
+}
+
 export const softDeleteHabit = async (req: Request, res: Response) => {
   try{
     const {id} = req.params;
@@ -88,6 +120,17 @@ export const softDeleteHabit = async (req: Request, res: Response) => {
   }catch (error){
     console.error(error);
     res.status(500).json({error: "Failed to delete habit"});
+  }
+};
+
+export const getSoftDelHabits = async (req: Request, res: Response) => {
+  try{
+    const habits = (await db.select().from(habit).orderBy(asc(habit.time)).where(eq(habit.isDeleted, true)));
+    res.status(200).json(habits);
+  }
+  catch (error){
+    console.error(error);
+    res.status(500).json({error: "Failed to fetch habits"});
   }
 };
 
